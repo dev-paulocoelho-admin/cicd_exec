@@ -5,11 +5,20 @@
   gather_facts: false
 
   vars:
-    # O nome do bucket precisa ser globalmente único no AWS S3
     bucket_name: "meu-bucket-ansible-demo-paulo-coelho"
     aws_region: "us-east-1"
 
   tasks:
+    - name: Verificar nome do bucket
+      ansible.builtin.debug:
+        msg: "{{ bucket_name | to_json }}"
+
+    - name: Validar nome do bucket
+      ansible.builtin.assert:
+        that:
+          - bucket_name is match('^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$')
+        fail_msg: "Nome de bucket inválido: {{ bucket_name | to_json }}"
+
     - name: Criar bucket S3
       amazon.aws.s3_bucket:
         name: "{{ bucket_name }}"
